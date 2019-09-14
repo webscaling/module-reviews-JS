@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom'
-import ReviewSummary from './components/ReviewSummary/ReviewSummary.jsx'
-import WriteReviewButton from './components/WriteReviewButton.jsx'
-import ReviewContainer from './components/ReviewContainer/ReviewContainer.jsx'
+import ReactDOM from 'react-dom';
+import ReviewSummary from './components/ReviewSummary/ReviewSummary.jsx';
+import WriteReviewButton from './components/WriteReviewButton.jsx';
+import ReviewContainer from './components/ReviewContainer/ReviewContainer.jsx';
 import axios from 'axios';
 import ComposeReview from './components/ComposeReview.jsx';
 
@@ -11,14 +11,14 @@ class ReviewsApp extends React.Component {
     super();
 
     this.state = {
-      currentItem: 38, //Math.floor((Math.random() * 100) + 1),
+      currentItem: 10000000, //Math.floor((Math.random() * 100) + 1),
       writeReview: false,
       itemReviews: [],
       listOrder: ['Top Reviews', 'Most Recent'],
       sort: 'top',
       allowHelpfulChange: true,
       currentUser: 'Zubair'
-    }
+    };
 
     this.handleSortChange = this.handleSortChange.bind(this);
   }
@@ -27,18 +27,18 @@ class ReviewsApp extends React.Component {
     this.getReviewsForItem(this.state.currentItem)
     window.addEventListener('clickedProduct', (event) => {
       let product = event.detail;
-      if(product) {
+      if (product) {
         this.setState(
           {
             currentItem: product
           }, ()=> this.getReviewsForItem(this.state.currentItem))
       }
-    })
+    });
     
   }
 
   getReviewsForItem(queryItemID) {
-    axios.get('http://ec2-18-212-163-195.compute-1.amazonaws.com/itemReviews', {
+    axios.get('/itemReviews', {
       params: {
         itemID: queryItemID,
         user: this.state.currentUser
@@ -58,7 +58,7 @@ class ReviewsApp extends React.Component {
     })
   }
 
-  sortReviewsByHelpful(){
+  sortReviewsByHelpful() {
     let newReviews = this.state.itemReviews;
     let newReviewsSorted = newReviews.slice().sort((a, b) => {
       return b.helpfulCount - a.helpfulCount;
@@ -75,11 +75,11 @@ class ReviewsApp extends React.Component {
       let aDate = new Date(a.date);
       let bDate = new Date(b.date);
       return bDate - aDate;
-    })
+    });
     this.setState({
       itemReviews: newReviewsSorted,
       sort: 'recent'
-    })
+    });
   }
 
   handleSortChange(event) {
@@ -113,8 +113,8 @@ class ReviewsApp extends React.Component {
   }
 
   handleHelpful(review) {
-    if(this.state.allowHelpfulChange){
-      axios.patch('http://ec2-18-212-163-195.compute-1.amazonaws.com/updateHelpful', {
+    if (this.state.allowHelpfulChange) {
+      axios.patch('/updateHelpful', {
         reviewObj: review,
         user: this.state.currentUser
       })
@@ -126,8 +126,8 @@ class ReviewsApp extends React.Component {
         this.setState({allowHelpfulChange: !this.state.allowHelpfulChange});
         setTimeout(() => {
           this.setState({allowHelpfulChange: !this.state.allowHelpfulChange});
-        }, 1000)
-      })
+        }, 1000);
+      });
     }
   }
 
@@ -142,7 +142,7 @@ class ReviewsApp extends React.Component {
       3: 0,
       4: 0,
       5: 0
-    }
+    };
 
     reviews.forEach(review => {
       sumReviews += review.rating;

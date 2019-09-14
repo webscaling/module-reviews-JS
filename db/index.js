@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const atlasKey = require('./config.js');
-const URI = `mongodb+srv://arohand:${atlasKey}@fec-reviews-z0qjd.mongodb.net/shazamazon-reviews?retryWrites=true&w=majority`
+// const URI = `mongodb+srv://jeffsalinas:${atlasKey}@fec-carousel-xdbvm.mongodb.net/web-scaling?retryWrites=true&w=majority`;
 
-mongoose.connect(URI, {useNewUrlParser: true});
+// mongoose.connect(URI, {useNewUrlParser: true});
+mongoose.connect('mongodb://localhost:27017/module-reviews', {useNewUrlParser: true});
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -20,9 +21,10 @@ const itemSchema = new mongoose.Schema({
   text: String,
   date: Date,
   helpfulCount: Number,
-  foundHelpful: Array
+  foundHelpful: Array,
+  count: Number
 });
 
-var Item = mongoose.model('reviews', itemSchema);
+var Item = mongoose.model('review', itemSchema);
 
 module.exports = Item;

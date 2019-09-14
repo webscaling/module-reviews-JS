@@ -6,7 +6,8 @@ const Item = require('../db/index.js');
 const { seedFakeData } = require('../db/seed.js');
 const { CensorSensor } = require('censor-sensor');
 const censor = new CensorSensor();
-const mongoose = require('mongoose');
+const timerFn = require('timer-node');
+const timer = timerFn('test-timer');
 
 censor.disableTier(4);
 const bannedWords = [
@@ -32,9 +33,13 @@ app.use(function(req, res, next) {
 });
 
 app.all('/seed', (req, res) => {
-  seedFakeData(1000);
+  seedFakeData(490000);
   res.send('database seed attempted');
 });
+
+app.get('/seedPost', (req, res) => {
+  
+})
 
 app.get('/get-reviews', (req, res) => {
   Item.find({rating: 4}, (err, items) => {
@@ -44,10 +49,12 @@ app.get('/get-reviews', (req, res) => {
 });
 
 app.get('/itemReviews', (req, res) => {
+  timer.start();
   let queriedItemID = req.query.itemID;
   let queryUser = req.query.user;
   Item.find({itemID: queriedItemID}, (err, reviews) => {
     //Sanitizing response to remove data from other users
+    timer.stop();
     reviews.forEach(review => {
       if(review.foundHelpful.includes(queryUser)){
         review.foundHelpful = [queryUser]
@@ -56,7 +63,9 @@ app.get('/itemReviews', (req, res) => {
       }
     })
     res.send(reviews);
+    console.log(timer.milliseconds());
   });
+  
 });
 
 app.post('/publishReview', (req, res)=> {

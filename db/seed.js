@@ -4,6 +4,9 @@ const neah = new Neah();
 const { CensorSensor } = require('censor-sensor'); //Profanity filter
 const censor = new CensorSensor();
 const dummyData = require('./dummydata');
+const timerFn = require('timer-node');
+const timer = timerFn('test-timer');
+
 
 censor.disableTier(4);
 
@@ -29,12 +32,15 @@ const characters = [
   { name: 'Quentin Coldwater', image: 'https://images.8tracks.com/cover/i/012/299/650/Screenshot_16-2095.png?rect=81,0,516,516&q=98&fm=jpg&fit=max' },
   { name: 'Zatanna', image: 'https://imgix.ranker.com/user_node_img/122/2437988/original/zatanna-comic-book-characters-photo-u13?w=87&h=87&fit=crop&crop=faces&q=60&fm=pjpg' },
   { name: 'Thaddeus Bradley', image: 'https://imgix.ranker.com/user_node_img/3683/73653603/original/thaddeus-bradley-fictional-characters-photo-u1?w=87&h=87&fit=crop&crop=faces&q=60&fm=pjpg' },
-]
+];
+
+let count = 0;
 
 const seedFakeData = (itemCount) => {
-  for(var i = 0; i < itemCount; i++){
+  let array = [];
+  for (var i = 1; i <= itemCount; i++) {
     let rating = Math.floor((Math.random() * 5) + 1);
-    let itemID = Math.floor((Math.random() * 100) + 1);
+    let itemID = Math.floor((Math.random() * 10000000) + 1);
 
     let ipsum = censor.cleanProfanityIsh(neah.paragraph());
     let title = censor.cleanProfanityIsh(neah.getRandom());
@@ -50,24 +56,35 @@ const seedFakeData = (itemCount) => {
     let randMins = Math.floor((Math.random() * 60) + 0);
     let randDate = new Date(Date.UTC(randYear, randMonth, randDay, randHours, randMins));
 
-    let randChar = characters[Math.floor((Math.random() * characters.length))]
+    let randChar = characters[Math.floor((Math.random() * characters.length))];
 
     var singleItem = new Item({
-        itemID: itemID,
-        author: randChar.name,
-        avatarURL: randChar.image,
-        rating: rating,
-        title: title,
-        text: ipsum,
-        date: randDate,
-        helpfulCount: helpful
+      itemID: itemID,
+      author: randChar.name,
+      avatarURL: randChar.image,
+      rating: rating,
+      title: title,
+      text: ipsum,
+      date: randDate,
+      helpfulCount: helpful,
+      count: i 
     });
-    singleItem.save(async (err, item) => {
-        if(err) console.error(err);
-        await console.log(`item id ${item.itemID} was seeded to the database`)        
-    })
+    array.push({insertOne: singleItem});
+ 
   }
-}
+  Item.collection.bulkWrite(array)
+    .then(() => {
+      console.log('success #' + count);
+      if (count < 18) {
+        count++;
+        seedFakeData(500000);
+      } 
+    })
+    .catch(err => {
+      console.error(err);
+    });
+};
+
 
 const createRandomItem = (review_ID, itemID, biasRating) => {
 

@@ -11,7 +11,7 @@ class ReviewsApp extends React.Component {
     super();
 
     this.state = {
-      currentItem: 10000000, //Math.floor((Math.random() * 100) + 1),
+      currentItem: Math.floor(Math.random() * 10000000) + 1,
       writeReview: false,
       itemReviews: [],
       listOrder: ['Top Reviews', 'Most Recent'],
@@ -24,14 +24,14 @@ class ReviewsApp extends React.Component {
   }
 
   componentDidMount() {
-    this.getReviewsForItem(this.state.currentItem)
+    this.getReviewsForItem(this.state.currentItem);
     window.addEventListener('clickedProduct', (event) => {
       let product = event.detail;
       if (product) {
         this.setState(
           {
             currentItem: product
-          }, ()=> this.getReviewsForItem(this.state.currentItem))
+          }, ()=> this.getReviewsForItem(this.state.currentItem));
       }
     });
     
@@ -48,7 +48,7 @@ class ReviewsApp extends React.Component {
       let newReviews = response.data;
       let newReviewsSorted = newReviews.slice().sort((a, b) => {
         return b.helpfulCount - a.helpfulCount;
-      })
+      }) 
       this.setState({
         itemReviews: newReviewsSorted,
       }, ()=> {

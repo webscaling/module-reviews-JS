@@ -2,3 +2,5 @@
 node_modules
 DataEntryHelper
 db/config.js
+output.csv
+output2.csv

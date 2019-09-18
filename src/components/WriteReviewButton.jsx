@@ -8,7 +8,7 @@ const WriteReviewButton = (props) => {
       <button class='rev_leave_review' 
         onClick={(e) => props.renderCompose(e)}>Write a customer review</button>
     </div>
-  )
-}
+  );
+};
 
 export default WriteReviewButton;

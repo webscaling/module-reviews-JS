@@ -14,4 +14,4 @@ module.exports = {
       'post-deploy': 'npm install && pm2 startOrRestart ecosystem.config.js'
     }
   }
-}
+};

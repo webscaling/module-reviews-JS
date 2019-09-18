@@ -3,9 +3,9 @@ const Neah = require('neah'); //Arnie quote generator
 const neah = new Neah();
 const { CensorSensor } = require('censor-sensor'); //Profanity filter
 const censor = new CensorSensor();
-const dummyData = require('./dummydata');
 const timerFn = require('timer-node');
 const timer = timerFn('test-timer');
+const fs = require('fs');
 
 
 censor.disableTier(4);
@@ -37,107 +37,65 @@ const characters = [
 let count = 1;
 
 const seedFakeData = (itemCount) => {
-  let array = [];
+  timer.start();
+  const array = ['itemid, author, avatarurl, rating, title, text, date, helpfulcount, foundhelpful' + '\n'];
   for (var i = 1; i <= itemCount; i++) {
     let rating = Math.floor((Math.random() * 5) + 1);
     let itemID = Math.floor((Math.random() * 10000000) + 1);
 
     let ipsum = censor.cleanProfanityIsh(neah.paragraph());
     let title = censor.cleanProfanityIsh(neah.getRandom());
-    title = title.length > 50 ? title.substring(0,50) + '...' : title;
-
+    title = title.length > 50 ? title.substring(0, 50) + '...' : title;
     let helpful = Math.floor((Math.random() * 15) + 1);
-
     let randYear = Math.floor((Math.random() * 3) + 2017);
     let monthMax = randYear === 2019 ? 7 : 11;
     let randMonth = Math.floor((Math.random() * monthMax) + 1);
     let randDay = Math.floor((Math.random() * 27) + 1);
-    let randHours = Math.floor((Math.random() * 24) + 0);
-    let randMins = Math.floor((Math.random() * 60) + 0);
-    let randDate = new Date(Date.UTC(randYear, randMonth, randDay, randHours, randMins));
+    let randDate = randYear.toString() + '-' + randMonth.toString() + '-' + (randDay.toString().length === 1 ? '0' + randDay.toString() : randDay.toString());
 
     let randChar = characters[Math.floor((Math.random() * characters.length))];
 
-    var singleItem = new Item({
-      itemid: itemID,
-      author: randChar.name,
-      avatarurl: randChar.image,
-      rating: rating,
-      title: title,
-      text: ipsum,
-      date: randDate,
-      helpfulCount: helpful
-    });
-    array.push({insertOne: singleItem});
- 
+    array.push(itemID + '|' + randChar.name + '|' + randChar.image + '|' + rating + '|' + title + '|' + ipsum + '|' + randDate + '|' + helpful + '|' + '{}' + '\n');
   }
-  Item.collection.bulkWrite(array)
-    .then(() => {
-      console.log('success #' + count);
-      if (count < 10) {
-        count++;
-        seedFakeData(125000);
-      } 
-    })
-    .catch(err => {
-      console.error(err);
-    });
+
+  var writerStream = fs.createWriteStream('output2.csv');
+
+  array.forEach((data) => {
+    // Write the data to stream with encoding to be utf8
+    writerStream.write(data, 'UTF8');
+  });
+
+  // Mark the end of file
+  writerStream.end();
+
+  // Handle stream events --> finish, and error
+  writerStream.on('finish', function () {
+    console.log('Write completed.');
+  });
+
+  writerStream.on('error', function (err) {
+    console.log(err.stack);
+  });
+  timer.stop();
+  console.log(timer.seconds().toString() + '.' + timer.milliseconds().toString());
+  console.log('Program Ended');
 };
 
 
 
-// const seedPost = (itemCount) => {
-
-//   for (var i = 1; i <= itemCount; i++) {
-//     let rating = Math.floor((Math.random() * 5) + 1);
-//     let itemID = Math.floor((Math.random() * 10000000) + 1);
-
-//     let ipsum = censor.cleanProfanityIsh(neah.paragraph());
-//     let title = censor.cleanProfanityIsh(neah.getRandom());
-//     title = title.length > 50 ? title.substring(0, 50) + '...' : title;
-
-//     let helpful = Math.floor((Math.random() * 15) + 1);
-
-//     let randYear = Math.floor((Math.random() * 3) + 2017);
-//     let monthMax = randYear === 2019 ? 7 : 11;
-//     let randMonth = Math.floor((Math.random() * monthMax) + 1);
-//     let randDay = Math.floor((Math.random() * 27) + 1);
-//     let randHours = Math.floor((Math.random() * 24) + 0);
-//     let randMins = Math.floor((Math.random() * 60) + 0);
-//     let randDate = new Date(Date.UTC(randYear, randMonth, randDay, randHours, randMins));
-
-//     let randChar = characters[Math.floor((Math.random() * characters.length))];
-
-//     var singleItem = new Item({
-//       itemID: itemID,
-//       author: randChar.name,
-//       avatarURL: randChar.image,
-//       rating: rating,
-//       title: title,
-//       text: ipsum,
-//       date: randDate,
-//       helpfulCount: helpful,
-//       count: i
-//     });
-    
-
-
-
+// module.exports = (args) => {
+//   timer.start();
+//   const {worker} = args;
+//   console.log(worker);
+//   // console.log(args);
+//   seedFakeData(125000);
+//   if (worker === 7) {
+//     timer.stop();
+//     console.log(timer.seconds().toString() + '.' + timer.milliseconds().toString() );
 //   }
- 
 // };
 
-module.exports = (args) => {
-  timer.start();
-  const {worker} = args;
-  console.log(worker);
-  // console.log(args);
-  seedFakeData(125000);
-  if (worker === 7) {
-    timer.stop();
-    console.log(timer.seconds().toString() + '.' + timer.milliseconds().toString() );
-  }
-};
+seedFakeData(8000000);
 
 
 // module.exports = { seedFakeData };
